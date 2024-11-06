@@ -24,7 +24,7 @@ public class Spawner : MonoBehaviour
     }
 
     void Spawn() {
-        int rando = Random.Range(0,3);
+        int rando = Random.Range(0,4);
         switch (rando) {
             case 0:
                 Instantiate(Cow,new Vector3(Random.Range(-maxDistance,maxDistance),Random.Range(groundBot,groundTop),0), new Quaternion());
@@ -33,6 +33,9 @@ public class Spawner : MonoBehaviour
                 Instantiate(Fox,new Vector3(Random.Range(-maxDistance,maxDistance),Random.Range(groundBot,groundTop),0), new Quaternion());
                 break;
             case 2:
+                Instantiate(Bird,new Vector3(Random.Range(-maxDistance,maxDistance),Random.Range(skyBot,skyTop),0), new Quaternion());
+                break;
+            case 3:
                 Instantiate(Bird,new Vector3(Random.Range(-maxDistance,maxDistance),Random.Range(skyBot,skyTop),0), new Quaternion());
                 break;
         }

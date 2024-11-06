@@ -19,6 +19,7 @@ public class Cow : Creature
     private bool rest = false;
     private bool angry = false;
     public float angryTime = 5;
+    public AudioSource moo;
 
     // Start is called before the first frame update
     void Start()
@@ -128,13 +129,13 @@ public class Cow : Creature
         if (other.gameObject.CompareTag("Piss")) {
             if (currentState != CowState.Angry && !angry) {
                 TakeDamage();
+                moo.Play();
                 if (currentState == CowState.Jumpy) {
                     angry = true;
                 } else if (currentState == CowState.Walk) {
                     ChangeBehavior(CowState.Angry);
                 }
             }
-            Destroy(other.gameObject);
         }
         
         if (currentState == CowState.Angry && other.gameObject.CompareTag("Fox")) {

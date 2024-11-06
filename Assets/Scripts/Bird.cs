@@ -16,20 +16,36 @@ public class Bird : Creature
     public GameObject pissDrop;
     public float pissGrowth = 1;
     public float pissRate = 0.2f;
+    public static bool panicking = false;
+    public static GameObject panicSource;
+    private int ranDir;
+    public AudioSource panicSound;
+    public static bool panicPlayed = true;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        piss = UnityEngine.Random.Range(0,bladder);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!panicPlayed && panicSource != this.gameObject) {
+            panicPlayed = true;
+            panicSound.Play();
+        }
         StateBehavior();
     }
 
     void StateBehavior() {
+
+        if (panicking && currentState != BirdState.Panic) {
+            ChangeBehavior(BirdState.Panic);
+        } else if (!panicking && currentState == BirdState.Panic) {
+            ChangeBehavior(BirdState.Flying);
+        }
+
         switch (currentState) {
             case BirdState.Flying:
                 Flying();
@@ -45,8 +61,19 @@ public class Bird : Creature
 
     void ChangeBehavior(BirdState newstate) {
 
+        if (currentState == BirdState.Panic) {
+            if (myDirection == -1) {
+                transform.localScale = new Vector3(-1,transform.localScale.y,transform.localScale.z);
+            } else if (transform.position.x <= -maxDistance) {
+                transform.localScale = new Vector3(1,transform.localScale.y,transform.localScale.z);
+            }
+        }
+
         if (newstate == BirdState.Pissy) {
             Invoke("Pee",0.1f);
+        }
+        if (newstate == BirdState.Panic) {
+            NewRanDir();
         }
 
         currentState = newstate;
@@ -88,13 +115,14 @@ public class Bird : Creature
     }
 
     void Panic() {
-        transform.Translate(Vector2.right * myDirection * FlyingSpeed * Time.deltaTime);
 
-        if (transform.position.x >= maxDistance) {
-            myDirection = -1;
+        
+
+        transform.Translate(Vector2.right * ranDir * FlyingSpeed * 2.5f * Time.deltaTime);
+
+        if (ranDir < 0) {
             transform.localScale = new Vector3(-1,transform.localScale.y,transform.localScale.z);
         } else if (transform.position.x <= -maxDistance) {
-            myDirection = 1;
             transform.localScale = new Vector3(1,transform.localScale.y,transform.localScale.z);
         }
     }
@@ -104,9 +132,38 @@ public class Bird : Creature
         piss -= pissRate;
 
         if (piss <= 0) {
-            ChangeBehavior(BirdState.Flying);
+            if (currentState != BirdState.Panic) {
+                ChangeBehavior(BirdState.Flying);
+            }
         } else {
-            Invoke("Pee",0.1f);
+            if (currentState == BirdState.Pissy) {
+                Invoke("Pee",0.1f);
+            }
+        }
+    }
+
+    public override void TakeDamage() {
+        health--;
+        if (health <= 0) {
+            panicking = true;
+            panicPlayed = false;
+            gameObject.SetActive(false);
+            panicSource = this.gameObject;
+            Invoke("Unpanic",2);
+        }
+    }
+
+    public void Unpanic() {
+        if (panicSource == this.gameObject) {
+            panicking = false;
+        }
+        Destroy(gameObject);
+    }
+
+    void NewRanDir() {
+        ranDir = UnityEngine.Random.Range(0,2)*2-1;
+        if (currentState == BirdState.Panic) {
+            Invoke("NewRanDir",0.2f);
         }
     }
 

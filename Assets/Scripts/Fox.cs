@@ -15,15 +15,20 @@ public class Fox : Creature
     private bool jumped = false;
     public BoxCollider2D detection;
     private float startY;
-    public int jumpHeigth = 40;
+    //static int jumpHeigth = 40;
+    float thisJump;
     public int jumpSpeed = 5;
     public float scaredTime = 0;
     public float maxScaredTime = 5;
+    public AudioSource hit;
+    public AudioSource jump;
+    public AudioSource chomp;
 
     // Start is called before the first frame update
     void Start()
     {
         startY = transform.position.y;
+        hunger = UnityEngine.Random.Range(0,maxHunger/2);
     }
 
     // Update is called once per frame
@@ -52,6 +57,12 @@ public class Fox : Creature
         }
         if (newstate == FoxState.Jumping) {
             hunger = 0;
+            thisJump = 45;//Random.Range(jumpHeigth/2,jumpHeigth/4 * 3);
+            jump.Play();
+        }
+
+        if (newstate == FoxState.Hunting) {
+            Invoke("UnHunt",3);
         }
 
         currentState = newstate;
@@ -100,7 +111,7 @@ public class Fox : Creature
     void Jump() {
         if (!jumped) {
             transform.Translate(Vector2.up * jumpSpeed * Time.deltaTime);
-            if (transform.position.y > jumpHeigth) {
+            if (transform.position.y > thisJump) {
                 jumped = true;
             }
         } else {
@@ -113,30 +124,38 @@ public class Fox : Creature
         }
     }
 
-    public override void TakeDamage() {
-
-        if (currentState == FoxState.Walk || currentState == FoxState.Hunting) {
-            ChangeBehavior(FoxState.Scared);
+    void UnHunt() {
+        if (currentState == FoxState.Hunting) {
+            hunger = maxHunger/2;
+            ChangeBehavior(FoxState.Walk);
         }
+    }
+
+    public override void TakeDamage() {
 
         if (currentState != FoxState.Scared) {
             health--;
+            hit.Play();
             if (health <= 0) {
                 Destroy(gameObject);
             }
+        }
+
+        if (currentState == FoxState.Walk || currentState == FoxState.Hunting) {
+            ChangeBehavior(FoxState.Scared);
         }
 
     }
 
     void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.CompareTag("Bird")) {
-            print("hi");
             if (other.otherCollider == detection) {
                 if (currentState == FoxState.Hunting) {
                     ChangeBehavior(FoxState.Jumping);
                 }
             } else {
-                Destroy(other.gameObject);
+                other.gameObject.GetComponent<Creature>().TakeDamage();
+                chomp.Play();
             }
         }
     }
