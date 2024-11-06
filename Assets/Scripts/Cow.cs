@@ -128,8 +128,8 @@ public class Cow : Creature
     void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.CompareTag("Piss")) {
             if (currentState != CowState.Angry && !angry) {
-                TakeDamage();
                 moo.Play();
+                TakeDamage();
                 if (currentState == CowState.Jumpy) {
                     angry = true;
                 } else if (currentState == CowState.Walk) {

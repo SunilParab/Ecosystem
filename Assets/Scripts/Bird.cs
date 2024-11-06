@@ -136,7 +136,7 @@ public class Bird : Creature
                 ChangeBehavior(BirdState.Flying);
             }
         } else {
-            if (currentState == BirdState.Pissy) {
+            if (currentState == BirdState.Pissy && health > 0) {
                 Invoke("Pee",0.1f);
             }
         }
