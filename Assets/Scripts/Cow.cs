@@ -124,7 +124,7 @@ public class Cow : Creature
         }
     }
 
-    void OnCollisionEnter2D(Collision2D other) {
+    void OnCollisionStay2D(Collision2D other) {
         if (other.gameObject.CompareTag("Piss")) {
             if (currentState != CowState.Angry && !angry) {
                 TakeDamage();

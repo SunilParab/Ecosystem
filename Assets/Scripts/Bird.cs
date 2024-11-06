@@ -37,6 +37,9 @@ public class Bird : Creature
             case BirdState.Pissy:
                 Pissy();
                 break;
+            case BirdState.Panic:
+                Panic();
+                break;
         }
     }
 
@@ -82,6 +85,18 @@ public class Bird : Creature
             transform.localScale = new Vector3(1,transform.localScale.y,transform.localScale.z);
         }
 
+    }
+
+    void Panic() {
+        transform.Translate(Vector2.right * myDirection * FlyingSpeed * Time.deltaTime);
+
+        if (transform.position.x >= maxDistance) {
+            myDirection = -1;
+            transform.localScale = new Vector3(-1,transform.localScale.y,transform.localScale.z);
+        } else if (transform.position.x <= -maxDistance) {
+            myDirection = 1;
+            transform.localScale = new Vector3(1,transform.localScale.y,transform.localScale.z);
+        }
     }
 
     void Pee() {
